@@ -3,9 +3,9 @@ import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "#features", label: "Преимущества" },
-  { href: "#products", label: "Продукты" },
-  { href: "#support", label: "Поддержка" },
+  { href: "#services", label: "Услуги" },
+  { href: "#technologies", label: "Технологии" },
+  { href: "#support", label: "Контакты" },
 ];
 
 export function Header() {

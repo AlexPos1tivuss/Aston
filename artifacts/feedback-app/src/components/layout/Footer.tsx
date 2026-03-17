@@ -20,8 +20,9 @@ export function Footer() {
                 </span>
               </div>
               <p className="max-w-sm text-sm text-gray-400 leading-relaxed">
-                Генеральная лицензия Банка России № 1326 от 16 января 2015 г.
-                <br />© 2001—2025 АСТОН Банк.
+                IT-компания полного цикла. Разработка программного обеспечения,
+                облачная инфраструктура и цифровая трансформация бизнеса.
+                <br />© 2012—2025 ASTON (astondevs.ru)
               </p>
               
               <div className="mt-8">
@@ -36,22 +37,22 @@ export function Footer() {
             </div>
             
             <div>
-              <h4 className="mb-4 font-semibold text-black font-display">Продукты</h4>
+              <h4 className="mb-4 font-semibold text-black font-display">Услуги</h4>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li>Кредитные карты</li>
-                <li>Вклады</li>
-                <li>Ипотека</li>
-                <li>Автокредиты</li>
+                <li>Веб-разработка</li>
+                <li>Мобильная разработка</li>
+                <li>Облачные решения</li>
+                <li>Интеграция систем</li>
               </ul>
             </div>
             
             <div>
-              <h4 className="mb-4 font-semibold text-black font-display">Поддержка</h4>
+              <h4 className="mb-4 font-semibold text-black font-display">Компания</h4>
               <ul className="space-y-3 text-sm text-gray-400">
+                <li>О нас</li>
+                <li>Карьера</li>
+                <li>Блог</li>
                 <li>Контакты</li>
-                <li>Офисы и банкоматы</li>
-                <li>Тарифы и документы</li>
-                <li>Безопасность</li>
               </ul>
             </div>
           </div>
