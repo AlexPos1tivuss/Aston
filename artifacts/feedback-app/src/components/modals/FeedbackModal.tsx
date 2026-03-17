@@ -17,11 +17,22 @@ const CATEGORIES = [
   "Мобильное приложение",
 ];
 
+const RATE_LIMIT_KEY = "feedback_last_submit";
+const RATE_LIMIT_MS = 3 * 60 * 1000;
+
+function getRateLimitRemaining(): number {
+  const last = localStorage.getItem(RATE_LIMIT_KEY);
+  if (!last) return 0;
+  const elapsed = Date.now() - parseInt(last, 10);
+  return Math.max(0, RATE_LIMIT_MS - elapsed);
+}
+
 export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const [step, setStep] = useState<"form" | "success">("form");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("Без категории");
   const [message, setMessage] = useState("");
+  const [rateLimitError, setRateLimitError] = useState("");
   
   const createFeedback = useCreateFeedback();
 
@@ -40,6 +51,14 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     e.preventDefault();
     if (message.length < 20 || message.length > 400) return;
 
+    const remaining = getRateLimitRemaining();
+    if (remaining > 0) {
+      const mins = Math.ceil(remaining / 60000);
+      setRateLimitError(`Повторная отправка возможна через ${mins} мин.`);
+      return;
+    }
+    setRateLimitError("");
+
     createFeedback.mutate(
       {
         data: {
@@ -51,6 +70,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
       },
       {
         onSuccess: () => {
+          localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
           setStep("success");
         },
       }
@@ -177,10 +197,10 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   <p>Форма предназначена для информирования и не подразумевает ответа.</p>
                 </div>
 
-                {createFeedback.isError && (
+                {(createFeedback.isError || rateLimitError) && (
                   <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 flex items-start">
                     <AlertCircle className="h-5 w-5 mr-2 shrink-0 text-red-500" />
-                    <p>{getErrorMessage()}</p>
+                    <p>{rateLimitError || getErrorMessage()}</p>
                   </div>
                 )}
 

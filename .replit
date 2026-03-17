@@ -24,3 +24,9 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+ADMIN_SECRET = "aston-admin-rivdi18o"
+VITE_ADMIN_TOKEN = "aston-admin-rivdi18o"

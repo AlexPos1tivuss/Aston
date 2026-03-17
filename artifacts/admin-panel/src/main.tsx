@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || "aston-admin-2026";
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN;
 const originalFetch = window.fetch;
 window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
   const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;

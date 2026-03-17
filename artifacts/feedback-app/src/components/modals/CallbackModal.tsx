@@ -21,12 +21,23 @@ const TIME_SLOTS = [
   "17:00 - 18:00",
 ];
 
+const CALLBACK_RATE_LIMIT_KEY = "callback_last_submit";
+const CALLBACK_RATE_LIMIT_MS = 3 * 60 * 1000;
+
+function getCallbackRateLimitRemaining(): number {
+  const last = localStorage.getItem(CALLBACK_RATE_LIMIT_KEY);
+  if (!last) return 0;
+  const elapsed = Date.now() - parseInt(last, 10);
+  return Math.max(0, CALLBACK_RATE_LIMIT_MS - elapsed);
+}
+
 export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
   const [step, setStep] = useState<"form" | "success">("form");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("+7");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [rateLimitError, setRateLimitError] = useState("");
 
   const createCallback = useCreateCallback();
 
@@ -76,6 +87,14 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     e.preventDefault();
     if (!isFormValid) return;
 
+    const remaining = getCallbackRateLimitRemaining();
+    if (remaining > 0) {
+      const mins = Math.ceil(remaining / 60000);
+      setRateLimitError(`Повторная отправка возможна через ${mins} мин.`);
+      return;
+    }
+    setRateLimitError("");
+
     createCallback.mutate(
       {
         data: {
@@ -87,6 +106,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
       },
       {
         onSuccess: () => {
+          localStorage.setItem(CALLBACK_RATE_LIMIT_KEY, Date.now().toString());
           setStep("success");
         },
       }
@@ -190,10 +210,10 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                   </div>
                 </div>
 
-                {createCallback.isError && (
+                {(createCallback.isError || rateLimitError) && (
                   <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 flex items-start mt-2">
                     <AlertCircle className="h-5 w-5 mr-2 shrink-0 text-red-500" />
-                    <p>Произошла ошибка при отправке заявки.</p>
+                    <p>{rateLimitError || "Произошла ошибка при отправке заявки."}</p>
                   </div>
                 )}
 

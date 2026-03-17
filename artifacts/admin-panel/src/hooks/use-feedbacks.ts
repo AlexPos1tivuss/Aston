@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { keepPreviousData } from "@tanstack/react-query";
 import {
   useListFeedbacks,
   useGetFeedbackStats,
@@ -29,9 +28,7 @@ export function useFeedbacksManager() {
     sortOrder,
   };
 
-  const query = useListFeedbacks(queryParams, {
-    query: { placeholderData: keepPreviousData },
-  });
+  const query = useListFeedbacks(queryParams);
 
   const statsQuery = useGetFeedbackStats();
 
