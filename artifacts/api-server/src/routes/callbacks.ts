@@ -37,6 +37,10 @@ function isValidCallDate(dateStr: string): boolean {
   today.setHours(0, 0, 0, 0);
   if (date <= today) return false;
 
+  const maxDate = new Date(today);
+  maxDate.setMonth(maxDate.getMonth() + 1);
+  if (date > maxDate) return false;
+
   const dayOfWeek = date.getDay();
   if (dayOfWeek === 0 || dayOfWeek === 6) return false;
 
@@ -66,6 +70,23 @@ router.post("/v1/callbacks", async (req, res): Promise<void> => {
   }
 
   const data = parsed.data;
+
+  if (data.name.length < 2 || data.name.length > 25) {
+    res.status(400).json({
+      error: "validation_error",
+      message: "Имя должно содержать от 2 до 25 символов",
+    });
+    return;
+  }
+
+  const cyrillicNameRegex = /^[А-Яа-яЁё][А-Яа-яЁё][А-Яа-яЁё\s.\-]*$/;
+  if (!cyrillicNameRegex.test(data.name)) {
+    res.status(400).json({
+      error: "validation_error",
+      message: "Имя должно начинаться с двух кириллических букв и содержать только кириллицу, пробелы, точки и дефисы",
+    });
+    return;
+  }
 
   const phoneRegex = /^\+7\d{10}$/;
   if (!phoneRegex.test(data.phoneNumber)) {

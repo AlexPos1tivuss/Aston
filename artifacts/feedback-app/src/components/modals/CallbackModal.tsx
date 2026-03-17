@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, Phone, Calendar, Clock, AlertCircle } from "lucide-react";
 import { useCreateCallback } from "@workspace/api-client-react";
@@ -31,6 +31,26 @@ function getCallbackRateLimitRemaining(): number {
   return Math.max(0, CALLBACK_RATE_LIMIT_MS - elapsed);
 }
 
+function getValidDates(): string[] {
+  const dates: string[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  for (let day = today.getDate() + 1; day <= lastDayOfMonth; day++) {
+    const d = new Date(currentYear, currentMonth, day);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) {
+      dates.push(d.toISOString().split("T")[0]);
+    }
+  }
+  return dates;
+}
+
 export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
   const [step, setStep] = useState<"form" | "success">("form");
   const [name, setName] = useState("");
@@ -38,6 +58,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [rateLimitError, setRateLimitError] = useState("");
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const createCallback = useCreateCallback();
 
@@ -49,36 +70,36 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
       setPhone("+7");
       setDate("");
       setTime("");
+      setTouched({});
       createCallback.reset();
     }, 300);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val === "" || /^[А-Яа-яЁё\s.\-]*$/.test(val)) {
+      setName(val);
+    }
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhoneNumber(e.target.value));
   };
 
-  const getValidDates = () => {
-    const dates = [];
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    for (let i = 1; i <= 30; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      
-      if (d.getDay() !== 0 && d.getDay() !== 6) {
-        dates.push(d.toISOString().split('T')[0]);
-      }
-    }
-    return dates;
-  };
+  const validDates = useMemo(() => getValidDates(), []);
 
-  const validDates = getValidDates();
-  
-  const isFormValid = name.trim().length > 0 && phone.length === 18 && date && time;
+  const nameError = touched.name && name.trim().length < 2 ? "Имя должно состоять минимум из 2 букв" : "";
+  const phoneError = touched.phone && phone.length < 18 ? "Заполните это поле" : "";
+  const dateError = touched.date && !date ? "Выберите корректную дату" : "";
+  const timeError = touched.time && !time ? "Заполните это поле" : "";
+
+  const isFormValid = name.trim().length >= 2 && phone.length === 18 && date && time;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    setTouched({ name: true, phone: true, date: true, time: true });
+
     if (!isFormValid) return;
 
     const remaining = getCallbackRateLimitRemaining();
@@ -105,6 +126,13 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         },
       }
     );
+  };
+
+  const getErrorMessage = () => {
+    if (!createCallback.isError) return null;
+    const err = createCallback.error;
+    if (err && "status" in err && err.status === 429) return "Превышена частота запросов. Повторите попытку позже.";
+    return "Ошибка 500: Сервис временно недоступен";
   };
 
   if (!isOpen) return null;
@@ -144,70 +172,110 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">Имя <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium text-gray-700">Ваше имя <span className="text-red-500">*</span></label>
                   <input
                     type="text"
-                    maxLength={50}
+                    maxLength={25}
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Как к вам обращаться?"
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    onChange={handleNameChange}
+                    onBlur={() => setTouched((t) => ({ ...t, name: true }))}
+                    placeholder="Имя"
+                    className={cn(
+                      "w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-black transition-colors focus:outline-none focus:ring-4 focus:ring-primary/10",
+                      nameError ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-primary"
+                    )}
                   />
+                  {nameError && (
+                    <p className="text-xs text-red-500 flex items-center mt-1">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {nameError}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">Телефон <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium text-gray-700">Ваш телефон <span className="text-red-500">*</span></label>
                   <input
                     type="tel"
                     value={phone}
                     onChange={handlePhoneChange}
-                    placeholder="+7 (999) 000-00-00"
-                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-black font-medium transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                    placeholder="+7 xxx xxx xxxx"
+                    className={cn(
+                      "w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-black font-medium transition-colors focus:outline-none focus:ring-4 focus:ring-primary/10",
+                      phoneError ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-primary"
+                    )}
                   />
+                  {phoneError && (
+                    <p className="text-xs text-red-500 flex items-center mt-1">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {phoneError}
+                    </p>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-gray-700">Дата звонка <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                      <select
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-                      >
-                        <option value="" disabled>Выберите дату</option>
-                        {validDates.map((d) => (
-                          <option key={d} value={d}>
-                            {new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' })}
-                          </option>
-                        ))}
-                      </select>
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-gray-700">Укажите удобную дату звонка <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <select
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      onBlur={() => setTouched((t) => ({ ...t, date: true }))}
+                      className={cn(
+                        "w-full appearance-none rounded-xl border-2 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:outline-none focus:ring-4 focus:ring-primary/10",
+                        dateError ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-primary"
+                      )}
+                    >
+                      <option value="" disabled>ДД.ММ.ГГГГ</option>
+                      {validDates.map((d) => (
+                        <option key={d} value={d}>
+                          {new Date(d + "T00:00:00").toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                          {" "}
+                          {new Date(d + "T00:00:00").toLocaleDateString("ru-RU", { weekday: "short" })}
+                        </option>
+                      ))}
+                    </select>
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
+                  {dateError && (
+                    <p className="text-xs text-red-500 flex items-center mt-1">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {dateError}
+                    </p>
+                  )}
+                </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-gray-700">Время <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                      <select
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
-                      >
-                        <option value="" disabled>Выберите время</option>
-                        {TIME_SLOTS.map((t) => (
-                          <option key={t} value={t}>{t}</option>
-                        ))}
-                      </select>
-                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                    </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-gray-700">Укажите удобное время звонка (МСК) <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <select
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      onBlur={() => setTouched((t) => ({ ...t, time: true }))}
+                      className={cn(
+                        "w-full appearance-none rounded-xl border-2 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:outline-none focus:ring-4 focus:ring-primary/10",
+                        timeError ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-primary"
+                      )}
+                    >
+                      <option value="" disabled>Выберите время</option>
+                      {TIME_SLOTS.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
+                  {timeError && (
+                    <p className="text-xs text-red-500 flex items-center mt-1">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {timeError}
+                    </p>
+                  )}
                 </div>
 
                 {(createCallback.isError || rateLimitError) && (
                   <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800 flex items-start mt-2">
                     <AlertCircle className="h-5 w-5 mr-2 shrink-0 text-red-500" />
-                    <p>{rateLimitError || "Произошла ошибка при отправке заявки."}</p>
+                    <p>{rateLimitError || getErrorMessage()}</p>
                   </div>
                 )}
 
@@ -231,10 +299,12 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-black font-display">Спасибо!</h3>
-                <p className="mb-8 text-gray-500">Ваша заявка на обратный звонок принята. Сотрудник свяжется с вами в указанное время.</p>
+                <p className="mb-8 text-gray-500">
+                  Ваша заявка на обратный звонок принята. Наш специалист свяжется с Вами в указанное время.
+                </p>
                 <button
                   onClick={handleClose}
-                  className="w-full rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+                  className="w-full max-w-xs rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
                 >
                   Закрыть
                 </button>

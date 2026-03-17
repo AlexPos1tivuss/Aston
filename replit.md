@@ -70,19 +70,23 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 
 ### `artifacts/feedback-app` (`@workspace/feedback-app`)
 
-User-facing ASTON bank landing page at `/`. React + Vite app with:
+User-facing ASTON IT company (astondevs.ru) landing page at `/`. React + Vite app with:
 
 - Color scheme: white/black/gray/#77E80C (lime green) throughout
-- Hero section with green gradient "АСТОН" title and CTA button
-- Features section (4 advantage cards with hover effects)
-- Products section (3 product cards with black hover state)
+- Hero section: "Разрабатываем цифровые продукты для бизнеса"
+- Stats bar: 200+ projects, 50+ devs, 10+ years, 99.9% uptime
+- Features section: Software dev, Data, Cloud, Security (4 cards)
+- Services section: Web dev, Mobile dev, System integration (3 cards with black hover)
 - Dark CTA section with callback button
-- Footer with license info and "Сообщить о проблеме" button
-- Header: clean nav with anchor links (Преимущества, Продукты, Поддержка) — no non-working buttons
-- FeedbackModal: "Сообщить о проблеме" — triggered from footer button
-  - Fields: ФИО (optional), category buttons, message textarea (20–400 chars)
-- CallbackModal: "Заказать звонок" — triggered from floating phone button and hero/CTA sections
-  - Fields: Имя (required), phone (+7 prefix + 10 digits), date (business days, 30 days ahead), time slots
+- Footer with IT company description, astondevs.ru, and "Сообщить о проблеме" button
+- Header: nav with anchor links (Услуги, Технологии, Контакты)
+- FeedbackModal (per spec C1-17): "Форма обратной связи" — triggered from footer button
+  - Fields: ФИО (optional, max 50, cyrillic only), category buttons (Без категории/Отделение банка/Банкоматы/Сайт + Мобильное приложение disabled), message "Сообщение о проблеме" (min 20, max 400)
+  - Success text: full spec message about analysis
+- CallbackModal (per spec C1-9): "Заказать звонок" — triggered from floating phone button and CTA
+  - Fields: "Ваше имя" (required, min 2, max 25, cyrillic+space+dot+dash), "Ваш телефон" (+7 fixed prefix, 10 digits), "Укажите удобную дату звонка" (current month weekdays from tomorrow, DD.MM.YYYY), "Укажите удобное время звонка (МСК)" (09:00-18:00 slots)
+  - Button: "Перезвоните мне" (disabled until all fields valid)
+  - Validation errors shown on blur
 - Client-side rate limiting (3 min cooldown) via localStorage in both modals
 - All UI in Russian
 

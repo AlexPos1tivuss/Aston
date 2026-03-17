@@ -11,10 +11,11 @@ interface FeedbackModalProps {
 }
 
 const CATEGORIES = [
-  "Без категории",
-  "Техническая",
-  "Доступность",
-  "Мобильное приложение",
+  { label: "Без категории", disabled: false },
+  { label: "Отделение банка", disabled: false },
+  { label: "Банкоматы", disabled: false },
+  { label: "Сайт", disabled: false },
+  { label: "Мобильное приложение", disabled: true, tooltip: "Приложение банка находится в разработке." },
 ];
 
 const RATE_LIMIT_KEY = "feedback_last_submit";
@@ -45,6 +46,13 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
       setMessage("");
       createFeedback.reset();
     }, 300);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val === "" || /^[А-Яа-яЁё\s\-]*$/.test(val)) {
+      setName(val);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -118,12 +126,12 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
               <form onSubmit={handleSubmit} className="space-y-5">
                 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">ФИО (необязательно)</label>
+                  <label className="text-sm font-medium text-gray-700">ФИО</label>
                   <input
                     type="text"
                     maxLength={50}
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={handleNameChange}
                     placeholder="Иванов Иван Иванович"
                     className="w-full rounded-xl border-2 border-gray-200 bg-gray-50/50 px-4 py-3 text-sm text-black transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
                   />
@@ -133,27 +141,30 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                   <label className="text-sm font-medium text-gray-700">Категория</label>
                   <div className="flex flex-wrap gap-2">
                     {CATEGORIES.map((cat) => (
-                      <TooltipProvider key={cat}>
+                      <TooltipProvider key={cat.label}>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
                               type="button"
-                              onClick={() => setCategory(cat)}
+                              disabled={cat.disabled}
+                              onClick={() => !cat.disabled && setCategory(cat.label)}
                               className={cn(
                                 "flex items-center rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-200",
-                                category === cat
-                                  ? "border-primary bg-primary text-black shadow-md shadow-primary/25"
-                                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                                cat.disabled
+                                  ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                                  : category === cat.label
+                                    ? "border-primary bg-primary text-black shadow-md shadow-primary/25"
+                                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                               )}
                             >
-                              {cat}
-                              {cat === "Мобильное приложение" && (
-                                <Info className={cn("ml-1.5 h-4 w-4", category === cat ? "text-black/60" : "text-gray-400")} />
+                              {cat.label}
+                              {cat.disabled && (
+                                <Info className="ml-1.5 h-4 w-4 text-gray-400" />
                               )}
                             </button>
                           </TooltipTrigger>
-                          {cat === "Мобильное приложение" && (
-                            <TooltipContent>Приложение банка находится в разработке.</TooltipContent>
+                          {cat.tooltip && (
+                            <TooltipContent>{cat.tooltip}</TooltipContent>
                           )}
                         </Tooltip>
                       </TooltipProvider>
@@ -163,7 +174,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-gray-700">Описание проблемы</label>
+                    <label className="text-sm font-medium text-gray-700">Сообщение о проблеме</label>
                     <span className={cn(
                       "text-xs",
                       message.length > 400 ? "text-red-500 font-medium" : "text-gray-400"
@@ -175,7 +186,7 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={4}
-                    placeholder="Опишите вашу проблему подробно..."
+                    placeholder="Введите текст"
                     className="w-full resize-none rounded-xl border-2 border-gray-200 bg-gray-50/50 px-4 py-3 text-sm text-black transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
                   />
                   {message.length > 0 && message.length < 20 && (
@@ -221,8 +232,10 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
                 <div className="mb-4 rounded-full bg-primary/10 p-3">
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-black font-display">Спасибо!</h3>
-                <p className="mb-8 text-gray-500">Ваше сообщение успешно отправлено.</p>
+                <h3 className="mb-2 text-xl font-bold text-black font-display">Форма отправлена!</h3>
+                <p className="mb-8 text-gray-500">
+                  Спасибо за обратную связь! Ваше сообщение о проблеме будет проанализировано вместе с другими обращениями. Это поможет улучшить качество работы и устранить возможные недочеты.
+                </p>
                 <button
                   onClick={handleClose}
                   className="w-full max-w-xs rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"

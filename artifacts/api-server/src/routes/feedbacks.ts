@@ -12,6 +12,13 @@ const router: IRouter = Router();
 const rateLimitMap = new Map<string, number>();
 const RATE_LIMIT_MS = 3 * 60 * 1000;
 
+const VALID_CATEGORIES = [
+  "Без категории",
+  "Отделение банка",
+  "Банкоматы",
+  "Сайт",
+];
+
 router.post("/v1/feedbacks", async (req, res): Promise<void> => {
   const clientIp = req.ip || req.socket.remoteAddress || "unknown";
   const lastRequest = rateLimitMap.get(clientIp);
@@ -39,6 +46,14 @@ router.post("/v1/feedbacks", async (req, res): Promise<void> => {
   }
 
   const data = parsed.data;
+
+  if (!VALID_CATEGORIES.includes(data.category)) {
+    res.status(400).json({
+      error: "validation_error",
+      message: "Некорректная категория",
+    });
+    return;
+  }
 
   if (data.message.length < 20) {
     res.status(400).json({
