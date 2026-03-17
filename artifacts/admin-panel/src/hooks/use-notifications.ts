@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, createContext, useContext } from "react";
-import { useListFeedbacks, useListCallbacks } from "@workspace/api-client-react";
+import { useListFeedbacks, useListCallbacks, getListFeedbacksQueryKey, getListCallbacksQueryKey } from "@workspace/api-client-react";
 
 interface NotificationItem {
   id: string;
@@ -58,15 +58,22 @@ export function useNotificationsProvider(): NotificationsContextValue {
   const stateRef = useRef(loadState());
   const initializedRef = useRef(false);
 
-  const feedbacksQuery = useListFeedbacks(
-    { page: 1, limit: 20 },
-    { query: { refetchInterval: POLL_INTERVAL } }
-  );
+  const feedbackParams = { page: 1, limit: 20 };
+  const callbackParams = { page: 1, limit: 20 };
 
-  const callbacksQuery = useListCallbacks(
-    { page: 1, limit: 20 },
-    { query: { refetchInterval: POLL_INTERVAL } }
-  );
+  const feedbacksQuery = useListFeedbacks(feedbackParams, {
+    query: {
+      queryKey: getListFeedbacksQueryKey(feedbackParams),
+      refetchInterval: POLL_INTERVAL,
+    },
+  });
+
+  const callbacksQuery = useListCallbacks(callbackParams, {
+    query: {
+      queryKey: getListCallbacksQueryKey(callbackParams),
+      refetchInterval: POLL_INTERVAL,
+    },
+  });
 
   useEffect(() => {
     if ("Notification" in window && Notification.permission === "default") {
