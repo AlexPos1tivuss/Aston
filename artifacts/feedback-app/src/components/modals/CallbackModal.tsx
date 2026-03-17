@@ -63,15 +63,10 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     const today = new Date();
     today.setHours(0,0,0,0);
     
-    // Check up to 30 days ahead to find valid dates in current month
     for (let i = 1; i <= 30; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       
-      // Stop if we enter next month
-      if (d.getMonth() !== today.getMonth()) break;
-      
-      // Skip weekends
       if (d.getDay() !== 0 && d.getDay() !== 6) {
         dates.push(d.toISOString().split('T')[0]);
       }
