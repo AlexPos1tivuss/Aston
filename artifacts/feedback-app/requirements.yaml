@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For smooth modal and page transitions"
+  "lucide-react": "For beautiful icons"
+  "date-fns": "For date formatting and manipulation"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to merge tailwind classes"
+
+images:
+  - path: "artifacts/feedback-app/public/images/hero-bg.png"
+    description: "Elegant corporate banking background in deep blue and crisp white with soft geometric glassmorphism shapes and subtle financial charts."
+    aspect_ratio: "16:9"
+  - path: "artifacts/feedback-app/public/images/card-pattern.png"
+    description: "Clean modern pattern with subtle grid and glowing blue accents for a financial technology website."
+    aspect_ratio: "16:9"
+
+notes:
+  - "The app relies on the provided @workspace/api-client-react generated hooks."
+  - "Date picker assumes standard Date objects and limits selection to future business days in the current month."
+  - "Phone input uses a custom mask for Russian numbers."

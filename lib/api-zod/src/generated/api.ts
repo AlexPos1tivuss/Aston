@@ -14,3 +14,166 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Submit an error/problem report from an unauthorized user
+ * @summary Create a feedback report
+ */
+export const createFeedbackBodyNameMax = 50;
+
+export const createFeedbackBodyMessageMin = 20;
+export const createFeedbackBodyMessageMax = 400;
+
+export const createFeedbackBodyCategoryDefault = `Без категории`;
+export const createFeedbackBodyCategoryMax = 64;
+
+export const CreateFeedbackBody = zod.object({
+  name: zod.string().max(createFeedbackBodyNameMax).optional(),
+  message: zod
+    .string()
+    .min(createFeedbackBodyMessageMin)
+    .max(createFeedbackBodyMessageMax),
+  category: zod
+    .string()
+    .max(createFeedbackBodyCategoryMax)
+    .default(createFeedbackBodyCategoryDefault),
+  timestamp: zod.date(),
+});
+
+/**
+ * Get paginated list of feedbacks for admin panel
+ * @summary List all feedbacks (admin)
+ */
+export const listFeedbacksQueryPageDefault = 1;
+export const listFeedbacksQueryLimitDefault = 20;
+export const listFeedbacksQuerySortByDefault = `createdAt`;
+export const listFeedbacksQuerySortOrderDefault = `desc`;
+
+export const ListFeedbacksQueryParams = zod.object({
+  page: zod.coerce.number().default(listFeedbacksQueryPageDefault),
+  limit: zod.coerce.number().default(listFeedbacksQueryLimitDefault),
+  category: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
+  sortBy: zod.coerce.string().default(listFeedbacksQuerySortByDefault),
+  sortOrder: zod
+    .enum(["asc", "desc"])
+    .default(listFeedbacksQuerySortOrderDefault),
+});
+
+export const ListFeedbacksResponse = zod.object({
+  data: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string().nullish(),
+      message: zod.string(),
+      category: zod.string(),
+      timestamp: zod.date(),
+      createdAt: zod.date(),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  limit: zod.number(),
+  totalPages: zod.number(),
+});
+
+/**
+ * Submit a callback request for a phone call
+ * @summary Create a callback request
+ */
+export const createCallbackBodyNameMax = 50;
+
+export const CreateCallbackBody = zod.object({
+  name: zod.string().min(1).max(createCallbackBodyNameMax),
+  phoneNumber: zod.string(),
+  callDate: zod.string(),
+  callTime: zod.string(),
+});
+
+/**
+ * Get paginated list of callback requests for admin panel
+ * @summary List all callback requests (admin)
+ */
+export const listCallbacksQueryPageDefault = 1;
+export const listCallbacksQueryLimitDefault = 20;
+export const listCallbacksQuerySortByDefault = `createdAt`;
+export const listCallbacksQuerySortOrderDefault = `desc`;
+
+export const ListCallbacksQueryParams = zod.object({
+  page: zod.coerce.number().default(listCallbacksQueryPageDefault),
+  limit: zod.coerce.number().default(listCallbacksQueryLimitDefault),
+  status: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
+  sortBy: zod.coerce.string().default(listCallbacksQuerySortByDefault),
+  sortOrder: zod
+    .enum(["asc", "desc"])
+    .default(listCallbacksQuerySortOrderDefault),
+});
+
+export const ListCallbacksResponse = zod.object({
+  data: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      phoneNumber: zod.string(),
+      callDate: zod.string(),
+      callTime: zod.string(),
+      status: zod.string(),
+      createdAt: zod.date(),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  limit: zod.number(),
+  totalPages: zod.number(),
+});
+
+/**
+ * Change the status of a callback request
+ * @summary Update callback request status (admin)
+ */
+export const UpdateCallbackStatusParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateCallbackStatusBody = zod.object({
+  status: zod.enum(["new", "in_progress", "completed", "rejected"]),
+});
+
+export const UpdateCallbackStatusResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  phoneNumber: zod.string(),
+  callDate: zod.string(),
+  callTime: zod.string(),
+  status: zod.string(),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Get feedback statistics (admin)
+ */
+export const GetFeedbackStatsResponse = zod.object({
+  total: zod.number(),
+  byCategory: zod.array(
+    zod.object({
+      category: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  todayCount: zod.number(),
+});
+
+/**
+ * @summary Get callback statistics (admin)
+ */
+export const GetCallbackStatsResponse = zod.object({
+  total: zod.number(),
+  byStatus: zod.array(
+    zod.object({
+      status: zod.string(),
+      count: zod.number(),
+    }),
+  ),
+  todayCount: zod.number(),
+});

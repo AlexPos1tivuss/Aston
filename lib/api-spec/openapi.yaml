@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: feedbacks
+    description: Feedback (error reports) operations
+  - name: callbacks
+    description: Callback request operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,225 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /v1/feedbacks:
+    post:
+      operationId: createFeedback
+      tags: [feedbacks]
+      summary: Create a feedback report
+      description: Submit an error/problem report from an unauthorized user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeedbackRequest"
+      responses:
+        "201":
+          description: Feedback created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: listFeedbacks
+      tags: [feedbacks]
+      summary: List all feedbacks (admin)
+      description: Get paginated list of feedbacks for admin panel
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of feedbacks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackListResponse"
+
+  /v1/callbacks:
+    post:
+      operationId: createCallback
+      tags: [callbacks]
+      summary: Create a callback request
+      description: Submit a callback request for a phone call
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCallbackRequest"
+      responses:
+        "201":
+          description: Callback request created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbackResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: listCallbacks
+      tags: [callbacks]
+      summary: List all callback requests (admin)
+      description: Get paginated list of callback requests for admin panel
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of callback requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbackListResponse"
+
+  /v1/callbacks/{id}:
+    patch:
+      operationId: updateCallbackStatus
+      tags: [callbacks]
+      summary: Update callback request status (admin)
+      description: Change the status of a callback request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCallbackStatusRequest"
+      responses:
+        "200":
+          description: Callback request updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbackResponse"
+        "404":
+          description: Callback not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/feedbacks/stats:
+    get:
+      operationId: getFeedbackStats
+      tags: [feedbacks]
+      summary: Get feedback statistics (admin)
+      responses:
+        "200":
+          description: Feedback statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackStatsResponse"
+
+  /v1/callbacks/stats:
+    get:
+      operationId: getCallbackStats
+      tags: [callbacks]
+      summary: Get callback statistics (admin)
+      responses:
+        "200":
+          description: Callback statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbackStatsResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +257,211 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    CreateFeedbackRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+        message:
+          type: string
+          minLength: 20
+          maxLength: 400
+        category:
+          type: string
+          maxLength: 64
+          default: "Без категории"
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - message
+        - category
+        - timestamp
+
+    FeedbackResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          nullable: true
+        message:
+          type: string
+        category:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - message
+        - category
+        - timestamp
+        - createdAt
+
+    FeedbackListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedbackResponse"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+        - totalPages
+
+    CreateCallbackRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        phoneNumber:
+          type: string
+        callDate:
+          type: string
+        callTime:
+          type: string
+      required:
+        - name
+        - phoneNumber
+        - callDate
+        - callTime
+
+    CallbackResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        callDate:
+          type: string
+        callTime:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - phoneNumber
+        - callDate
+        - callTime
+        - status
+        - createdAt
+
+    CallbackListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CallbackResponse"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - limit
+        - totalPages
+
+    UpdateCallbackStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - new
+            - in_progress
+            - completed
+            - rejected
+      required:
+        - status
+
+    FeedbackStatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        byCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+            required:
+              - category
+              - count
+        todayCount:
+          type: integer
+      required:
+        - total
+        - byCategory
+        - todayCount
+
+    CallbackStatsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        byStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+            required:
+              - status
+              - count
+        todayCount:
+          type: integer
+      required:
+        - total
+        - byStatus
+        - todayCount

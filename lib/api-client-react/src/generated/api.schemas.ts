@@ -8,3 +8,137 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ErrorResponse {
+  error: string;
+  message: string;
+}
+
+export interface CreateFeedbackRequest {
+  /** @maxLength 50 */
+  name?: string;
+  /**
+   * @minLength 20
+   * @maxLength 400
+   */
+  message: string;
+  /** @maxLength 64 */
+  category: string;
+  timestamp: string;
+}
+
+export interface FeedbackResponse {
+  id: number;
+  name?: string | null;
+  message: string;
+  category: string;
+  timestamp: string;
+  createdAt: string;
+}
+
+export interface FeedbackListResponse {
+  data: FeedbackResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CreateCallbackRequest {
+  /**
+   * @minLength 1
+   * @maxLength 50
+   */
+  name: string;
+  phoneNumber: string;
+  callDate: string;
+  callTime: string;
+}
+
+export interface CallbackResponse {
+  id: number;
+  name: string;
+  phoneNumber: string;
+  callDate: string;
+  callTime: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface CallbackListResponse {
+  data: CallbackResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type UpdateCallbackStatusRequestStatus =
+  (typeof UpdateCallbackStatusRequestStatus)[keyof typeof UpdateCallbackStatusRequestStatus];
+
+export const UpdateCallbackStatusRequestStatus = {
+  new: "new",
+  in_progress: "in_progress",
+  completed: "completed",
+  rejected: "rejected",
+} as const;
+
+export interface UpdateCallbackStatusRequest {
+  status: UpdateCallbackStatusRequestStatus;
+}
+
+export type FeedbackStatsResponseByCategoryItem = {
+  category: string;
+  count: number;
+};
+
+export interface FeedbackStatsResponse {
+  total: number;
+  byCategory: FeedbackStatsResponseByCategoryItem[];
+  todayCount: number;
+}
+
+export type CallbackStatsResponseByStatusItem = {
+  status: string;
+  count: number;
+};
+
+export interface CallbackStatsResponse {
+  total: number;
+  byStatus: CallbackStatsResponseByStatusItem[];
+  todayCount: number;
+}
+
+export type ListFeedbacksParams = {
+  page?: number;
+  limit?: number;
+  category?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: ListFeedbacksSortOrder;
+};
+
+export type ListFeedbacksSortOrder =
+  (typeof ListFeedbacksSortOrder)[keyof typeof ListFeedbacksSortOrder];
+
+export const ListFeedbacksSortOrder = {
+  asc: "asc",
+  desc: "desc",
+} as const;
+
+export type ListCallbacksParams = {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: ListCallbacksSortOrder;
+};
+
+export type ListCallbacksSortOrder =
+  (typeof ListCallbacksSortOrder)[keyof typeof ListCallbacksSortOrder];
+
+export const ListCallbacksSortOrder = {
+  asc: "asc",
+  desc: "desc",
+} as const;

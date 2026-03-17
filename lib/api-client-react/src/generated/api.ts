@@ -5,18 +5,35 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  CallbackListResponse,
+  CallbackResponse,
+  CallbackStatsResponse,
+  CreateCallbackRequest,
+  CreateFeedbackRequest,
+  ErrorResponse,
+  FeedbackListResponse,
+  FeedbackResponse,
+  FeedbackStatsResponse,
+  HealthStatus,
+  ListCallbacksParams,
+  ListFeedbacksParams,
+  UpdateCallbackStatusRequest,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -92,6 +109,609 @@ export function useHealthCheck<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getHealthCheckQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Submit an error/problem report from an unauthorized user
+ * @summary Create a feedback report
+ */
+export const getCreateFeedbackUrl = () => {
+  return `/api/v1/feedbacks`;
+};
+
+export const createFeedback = async (
+  createFeedbackRequest: CreateFeedbackRequest,
+  options?: RequestInit,
+): Promise<FeedbackResponse> => {
+  return customFetch<FeedbackResponse>(getCreateFeedbackUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createFeedbackRequest),
+  });
+};
+
+export const getCreateFeedbackMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createFeedback>>,
+    TError,
+    { data: BodyType<CreateFeedbackRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createFeedback>>,
+  TError,
+  { data: BodyType<CreateFeedbackRequest> },
+  TContext
+> => {
+  const mutationKey = ["createFeedback"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createFeedback>>,
+    { data: BodyType<CreateFeedbackRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createFeedback(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateFeedbackMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createFeedback>>
+>;
+export type CreateFeedbackMutationBody = BodyType<CreateFeedbackRequest>;
+export type CreateFeedbackMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Create a feedback report
+ */
+export const useCreateFeedback = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createFeedback>>,
+    TError,
+    { data: BodyType<CreateFeedbackRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createFeedback>>,
+  TError,
+  { data: BodyType<CreateFeedbackRequest> },
+  TContext
+> => {
+  return useMutation(getCreateFeedbackMutationOptions(options));
+};
+
+/**
+ * Get paginated list of feedbacks for admin panel
+ * @summary List all feedbacks (admin)
+ */
+export const getListFeedbacksUrl = (params?: ListFeedbacksParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/feedbacks?${stringifiedParams}`
+    : `/api/v1/feedbacks`;
+};
+
+export const listFeedbacks = async (
+  params?: ListFeedbacksParams,
+  options?: RequestInit,
+): Promise<FeedbackListResponse> => {
+  return customFetch<FeedbackListResponse>(getListFeedbacksUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListFeedbacksQueryKey = (params?: ListFeedbacksParams) => {
+  return [`/api/v1/feedbacks`, ...(params ? [params] : [])] as const;
+};
+
+export const getListFeedbacksQueryOptions = <
+  TData = Awaited<ReturnType<typeof listFeedbacks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListFeedbacksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listFeedbacks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListFeedbacksQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listFeedbacks>>> = ({
+    signal,
+  }) => listFeedbacks(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listFeedbacks>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListFeedbacksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listFeedbacks>>
+>;
+export type ListFeedbacksQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all feedbacks (admin)
+ */
+
+export function useListFeedbacks<
+  TData = Awaited<ReturnType<typeof listFeedbacks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListFeedbacksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listFeedbacks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListFeedbacksQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Submit a callback request for a phone call
+ * @summary Create a callback request
+ */
+export const getCreateCallbackUrl = () => {
+  return `/api/v1/callbacks`;
+};
+
+export const createCallback = async (
+  createCallbackRequest: CreateCallbackRequest,
+  options?: RequestInit,
+): Promise<CallbackResponse> => {
+  return customFetch<CallbackResponse>(getCreateCallbackUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createCallbackRequest),
+  });
+};
+
+export const getCreateCallbackMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCallback>>,
+    TError,
+    { data: BodyType<CreateCallbackRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createCallback>>,
+  TError,
+  { data: BodyType<CreateCallbackRequest> },
+  TContext
+> => {
+  const mutationKey = ["createCallback"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createCallback>>,
+    { data: BodyType<CreateCallbackRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createCallback(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateCallbackMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createCallback>>
+>;
+export type CreateCallbackMutationBody = BodyType<CreateCallbackRequest>;
+export type CreateCallbackMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Create a callback request
+ */
+export const useCreateCallback = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCallback>>,
+    TError,
+    { data: BodyType<CreateCallbackRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createCallback>>,
+  TError,
+  { data: BodyType<CreateCallbackRequest> },
+  TContext
+> => {
+  return useMutation(getCreateCallbackMutationOptions(options));
+};
+
+/**
+ * Get paginated list of callback requests for admin panel
+ * @summary List all callback requests (admin)
+ */
+export const getListCallbacksUrl = (params?: ListCallbacksParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/callbacks?${stringifiedParams}`
+    : `/api/v1/callbacks`;
+};
+
+export const listCallbacks = async (
+  params?: ListCallbacksParams,
+  options?: RequestInit,
+): Promise<CallbackListResponse> => {
+  return customFetch<CallbackListResponse>(getListCallbacksUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListCallbacksQueryKey = (params?: ListCallbacksParams) => {
+  return [`/api/v1/callbacks`, ...(params ? [params] : [])] as const;
+};
+
+export const getListCallbacksQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCallbacks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListCallbacksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCallbacks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListCallbacksQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listCallbacks>>> = ({
+    signal,
+  }) => listCallbacks(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCallbacks>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCallbacksQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCallbacks>>
+>;
+export type ListCallbacksQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all callback requests (admin)
+ */
+
+export function useListCallbacks<
+  TData = Awaited<ReturnType<typeof listCallbacks>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListCallbacksParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listCallbacks>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCallbacksQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * Change the status of a callback request
+ * @summary Update callback request status (admin)
+ */
+export const getUpdateCallbackStatusUrl = (id: number) => {
+  return `/api/v1/callbacks/${id}`;
+};
+
+export const updateCallbackStatus = async (
+  id: number,
+  updateCallbackStatusRequest: UpdateCallbackStatusRequest,
+  options?: RequestInit,
+): Promise<CallbackResponse> => {
+  return customFetch<CallbackResponse>(getUpdateCallbackStatusUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateCallbackStatusRequest),
+  });
+};
+
+export const getUpdateCallbackStatusMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCallbackStatus>>,
+    TError,
+    { id: number; data: BodyType<UpdateCallbackStatusRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateCallbackStatus>>,
+  TError,
+  { id: number; data: BodyType<UpdateCallbackStatusRequest> },
+  TContext
+> => {
+  const mutationKey = ["updateCallbackStatus"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateCallbackStatus>>,
+    { id: number; data: BodyType<UpdateCallbackStatusRequest> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateCallbackStatus(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateCallbackStatusMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateCallbackStatus>>
+>;
+export type UpdateCallbackStatusMutationBody =
+  BodyType<UpdateCallbackStatusRequest>;
+export type UpdateCallbackStatusMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Update callback request status (admin)
+ */
+export const useUpdateCallbackStatus = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateCallbackStatus>>,
+    TError,
+    { id: number; data: BodyType<UpdateCallbackStatusRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateCallbackStatus>>,
+  TError,
+  { id: number; data: BodyType<UpdateCallbackStatusRequest> },
+  TContext
+> => {
+  return useMutation(getUpdateCallbackStatusMutationOptions(options));
+};
+
+/**
+ * @summary Get feedback statistics (admin)
+ */
+export const getGetFeedbackStatsUrl = () => {
+  return `/api/v1/feedbacks/stats`;
+};
+
+export const getFeedbackStats = async (
+  options?: RequestInit,
+): Promise<FeedbackStatsResponse> => {
+  return customFetch<FeedbackStatsResponse>(getGetFeedbackStatsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetFeedbackStatsQueryKey = () => {
+  return [`/api/v1/feedbacks/stats`] as const;
+};
+
+export const getGetFeedbackStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFeedbackStats>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getFeedbackStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetFeedbackStatsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getFeedbackStats>>
+  > = ({ signal }) => getFeedbackStats({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getFeedbackStats>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetFeedbackStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFeedbackStats>>
+>;
+export type GetFeedbackStatsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get feedback statistics (admin)
+ */
+
+export function useGetFeedbackStats<
+  TData = Awaited<ReturnType<typeof getFeedbackStats>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getFeedbackStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetFeedbackStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get callback statistics (admin)
+ */
+export const getGetCallbackStatsUrl = () => {
+  return `/api/v1/callbacks/stats`;
+};
+
+export const getCallbackStats = async (
+  options?: RequestInit,
+): Promise<CallbackStatsResponse> => {
+  return customFetch<CallbackStatsResponse>(getGetCallbackStatsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCallbackStatsQueryKey = () => {
+  return [`/api/v1/callbacks/stats`] as const;
+};
+
+export const getGetCallbackStatsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCallbackStats>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCallbackStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCallbackStatsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getCallbackStats>>
+  > = ({ signal }) => getCallbackStats({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCallbackStats>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCallbackStatsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCallbackStats>>
+>;
+export type GetCallbackStatsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get callback statistics (admin)
+ */
+
+export function useGetCallbackStats<
+  TData = Awaited<ReturnType<typeof getCallbackStats>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getCallbackStats>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCallbackStatsQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

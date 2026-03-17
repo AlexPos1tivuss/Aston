@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Блок обратной связи"
+version = "1.0.0"
+id = "artifacts/feedback-app"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 25771
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/feedback-app run dev"
+
+[services.env]
+PORT = "25771"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/feedback-app", "run", "build"]
+publicDir = "artifacts/feedback-app/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
