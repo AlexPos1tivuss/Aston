@@ -56,7 +56,7 @@ export default function FeedbacksPage() {
             value={statsQuery.isLoading ? "-" : statsQuery.data?.todayCount || 0}
             icon={<AlertCircle className="w-5 h-5" />}
             delay={0.2}
-            className="border-primary/20 bg-primary/5"
+            className="border-primary/30 bg-primary/5"
           />
           <StatCard
             title="Частая категория"

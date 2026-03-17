@@ -57,7 +57,6 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     setPhone(formatPhoneNumber(e.target.value));
   };
 
-  // Build valid dates
   const getValidDates = () => {
     const dates = [];
     const today = new Date();
@@ -118,7 +117,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
-          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         />
         
         <motion.div
@@ -127,14 +126,14 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
         >
-          <div className="flex items-center justify-between bg-slate-50 px-6 py-4 border-b border-slate-100">
-            <h2 className="text-xl font-bold text-slate-800 font-display flex items-center">
+          <div className="flex items-center justify-between bg-gray-50 px-6 py-4 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-black font-display flex items-center">
               <Phone className="w-5 h-5 mr-2 text-primary" />
               Заказать звонок
             </h2>
             <button
               onClick={handleClose}
-              className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
+              className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600"
             >
               <X className="h-5 w-5" />
             </button>
@@ -145,36 +144,36 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-700">Имя <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium text-gray-700">Имя <span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     maxLength={50}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Как к вам обращаться?"
-                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-slate-700">Телефон <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-medium text-gray-700">Телефон <span className="text-red-500">*</span></label>
                   <input
                     type="tel"
                     value={phone}
                     onChange={handlePhoneChange}
                     placeholder="+7 (999) 000-00-00"
-                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 font-medium transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                    className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm text-black font-medium transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700">Дата звонка <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-medium text-gray-700">Дата звонка <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <select
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="w-full appearance-none rounded-xl border-2 border-slate-200 bg-white pl-10 pr-4 py-3 text-sm text-slate-800 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                        className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                       >
                         <option value="" disabled>Выберите дату</option>
                         {validDates.map((d) => (
@@ -183,24 +182,24 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                           </option>
                         ))}
                       </select>
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700">Время <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-medium text-gray-700">Время <span className="text-red-500">*</span></label>
                     <div className="relative">
                       <select
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
-                        className="w-full appearance-none rounded-xl border-2 border-slate-200 bg-white pl-10 pr-4 py-3 text-sm text-slate-800 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+                        className="w-full appearance-none rounded-xl border-2 border-gray-200 bg-white pl-10 pr-4 py-3 text-sm text-black transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                       >
                         <option value="" disabled>Выберите время</option>
                         {TIME_SLOTS.map((t) => (
                           <option key={t} value={t}>{t}</option>
                         ))}
                       </select>
-                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -216,7 +215,7 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                   <button
                     type="submit"
                     disabled={!isFormValid || createCallback.isPending}
-                    className="w-full rounded-xl bg-gradient-to-r from-primary to-blue-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
+                    className="w-full rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-black shadow-lg shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
                   >
                     {createCallback.isPending ? "Отправка..." : "Перезвоните мне"}
                   </button>
@@ -228,14 +227,14 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                 animate={{ scale: 1, opacity: 1 }}
                 className="flex flex-col items-center justify-center py-8 text-center"
               >
-                <div className="mb-4 rounded-full bg-blue-100 p-3">
+                <div className="mb-4 rounded-full bg-primary/10 p-3">
                   <CheckCircle2 className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-slate-800 font-display">Спасибо!</h3>
-                <p className="mb-8 text-slate-500">Ваша заявка на обратный звонок принята. Сотрудник свяжется с вами в указанное время.</p>
+                <h3 className="mb-2 text-xl font-bold text-black font-display">Спасибо!</h3>
+                <p className="mb-8 text-gray-500">Ваша заявка на обратный звонок принята. Сотрудник свяжется с вами в указанное время.</p>
                 <button
                   onClick={handleClose}
-                  className="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                  className="w-full rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
                 >
                   Закрыть
                 </button>

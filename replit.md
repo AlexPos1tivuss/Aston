@@ -72,22 +72,37 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 
 User-facing ASTON bank landing page at `/`. React + Vite app with:
 
-- Hero section, features, and footer (ASTON branding)
+- Color scheme: white/black/gray/#77E80C (lime green) throughout
+- Hero section with green gradient "АСТОН" title and CTA button
+- Features section (4 advantage cards with hover effects)
+- Products section (3 product cards with black hover state)
+- Dark CTA section with callback button
+- Footer with license info and "Сообщить о проблеме" button
+- Header: clean nav with anchor links (Преимущества, Продукты, Поддержка) — no non-working buttons
 - FeedbackModal: "Сообщить о проблеме" — triggered from footer button
   - Fields: ФИО (optional), category buttons, message textarea (20–400 chars)
-- CallbackModal: "Заказать звонок" — triggered from floating phone button (bottom-right)
-  - Fields: Имя (required), phone (+7 prefix + 10 digits), date (business days), time slots
+- CallbackModal: "Заказать звонок" — triggered from floating phone button and hero/CTA sections
+  - Fields: Имя (required), phone (+7 prefix + 10 digits), date (business days, 30 days ahead), time slots
+- Client-side rate limiting (3 min cooldown) via localStorage in both modals
 - All UI in Russian
 
 ### `artifacts/admin-panel` (`@workspace/admin-panel`)
 
 Admin panel at `/admin/`. React + Vite app with:
 
-- Sidebar navigation: "Обращения" (feedbacks) and "Заявки на звонок" (callbacks)
+- Color scheme: white/black/gray/#77E80C (lime green) matching user-facing app
+- Sidebar navigation with spring-animated active indicator (layoutId animation)
+- Desktop sidebar with admin profile at bottom, mobile sidebar with overlay backdrop
+- Notification system:
+  - Bell icon with unread count badge in top bar
+  - Dropdown panel showing new feedbacks/callbacks with timestamps
+  - Browser push notifications (Notification API) for new submissions
+  - Polls every 15s for new entries, tracks seen IDs via localStorage
+  - Mark as read / clear all controls
 - Stats cards showing totals, today count, top category/status
-- Searchable/filterable tables with pagination
+- Searchable/filterable tables with pagination and date range filters
 - Status management for callbacks (Новая/В обработке/Завершена/Отклонена)
-- No authentication (by design per project requirements)
+- Admin auth via x-admin-token header (fetch interceptor in main.tsx, sourced from VITE_ADMIN_TOKEN env var)
 
 ### `lib/db` (`@workspace/db`)
 

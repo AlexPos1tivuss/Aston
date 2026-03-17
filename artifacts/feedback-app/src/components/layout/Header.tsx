@@ -1,31 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "wouter";
+import { Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { href: "#features", label: "Преимущества" },
+  { href: "#products", label: "Продукты" },
+  { href: "#support", label: "Поддержка" },
+];
 
 export function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-40 w-full border-b border-gray-100 bg-white/90 backdrop-blur-lg">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 shadow-md shadow-primary/20 transition-transform group-hover:scale-105">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black transition-transform group-hover:scale-105">
             <span className="text-xl font-extrabold text-white font-display">А</span>
           </div>
-          <span className="text-2xl font-black tracking-tight text-slate-900 font-display">
+          <span className="text-2xl font-black tracking-tight text-black font-display">
             АСТОН
           </span>
         </Link>
+
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Частным лицам</a>
-          <a href="#" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Бизнесу</a>
-          <a href="#" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Инвестиции</a>
-          <a href="#" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">О банке</a>
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
         </nav>
-        <div className="flex items-center gap-4">
-          <a href="#" className="hidden sm:block text-sm font-medium text-primary hover:text-blue-700">Войти</a>
-          <button className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md">
-            Стать клиентом
-          </button>
-        </div>
+
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="md:hidden p-2 -mr-2 text-gray-600 hover:text-black transition-colors"
+        >
+          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
+
+      {mobileOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className="block text-sm font-medium text-gray-600 hover:text-black py-2"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 }

@@ -37,64 +37,36 @@
 }
 
 :root {
-  /* Clean professional corporate palette with Aston-like blue accents */
-  --background: 210 33% 99%;
-  --foreground: 222 47% 11%;
+  --background: 0 0% 97%;
+  --foreground: 0 0% 9%;
   
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 0 0% 9%;
   
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 91 90% 48%;
   
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
+  --primary: 91 90% 48%;
+  --primary-foreground: 0 0% 0%;
   
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
   
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
   
-  --accent: 210 40% 96%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 9%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 100%;
 
   --success: 142 71% 45%;
   --success-foreground: 144 100% 11%;
 
   --warning: 38 92% 50%;
   --warning-foreground: 48 96% 11%;
-}
-
-.dark {
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
-  
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  
-  --border: 216 34% 17%;
-  --input: 216 34% 17%;
-  --ring: 213 31% 91%;
-  
-  --primary: 210 40% 98%;
-  --primary-foreground: 222 47% 11%;
-  
-  --secondary: 217 24% 27%;
-  --secondary-foreground: 210 40% 98%;
-  
-  --muted: 217 24% 27%;
-  --muted-foreground: 215 20.2% 65.1%;
-  
-  --accent: 217 24% 27%;
-  --accent-foreground: 210 40% 98%;
-  
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 210 40% 98%;
 }
 
 @layer base {
@@ -110,7 +82,6 @@
   }
 }
 
-/* Custom Scrollbar for tables/areas */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

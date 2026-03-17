@@ -30,30 +30,30 @@
 }
 
 :root {
-  --background: 210 40% 98%; /* Very light blue-gray */
-  --foreground: 222 47% 11%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
   
-  --primary: 221 83% 53%; /* Deep Corporate Blue */
-  --primary-foreground: 210 40% 98%;
+  --primary: 91 90% 48%;
+  --primary-foreground: 0 0% 0%;
   
-  --secondary: 214 32% 91%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
   
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
   
-  --accent: 221 83% 90%;
-  --accent-foreground: 221 83% 53%;
+  --accent: 91 40% 93%;
+  --accent-foreground: 91 90% 30%;
   
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 100%;
   
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221 83% 53%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 91 90% 48%;
   
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 0 0% 9%;
   
   --radius: 0.75rem;
 }
@@ -69,14 +69,14 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    @apply tracking-tight text-slate-900;
+    @apply tracking-tight text-foreground;
   }
 }
 
 .glass-panel {
-  @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl shadow-slate-200/50;
+  @apply bg-white/70 backdrop-blur-xl border border-gray-200/50 shadow-xl shadow-gray-200/30;
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-[#9aff3a];
 }
