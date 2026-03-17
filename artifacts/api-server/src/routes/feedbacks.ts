@@ -1,12 +1,11 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, asc, ilike, or, sql, count } from "drizzle-orm";
+import { eq, desc, asc, ilike, or, sql, count, gte, lte, and } from "drizzle-orm";
 import { db, feedbacksTable } from "@workspace/db";
 import {
   CreateFeedbackBody,
   ListFeedbacksQueryParams,
-  ListFeedbacksResponse,
-  GetFeedbackStatsResponse,
 } from "@workspace/api-zod";
+import { adminAuth } from "../middleware/admin-auth";
 
 const router: IRouter = Router();
 
@@ -79,7 +78,38 @@ router.post("/v1/feedbacks", async (req, res): Promise<void> => {
   });
 });
 
-router.get("/v1/feedbacks", async (req, res): Promise<void> => {
+router.get("/v1/feedbacks/stats", adminAuth, async (_req, res): Promise<void> => {
+  const [totalResult] = await db
+    .select({ count: count() })
+    .from(feedbacksTable);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [todayResult] = await db
+    .select({ count: count() })
+    .from(feedbacksTable)
+    .where(sql`${feedbacksTable.createdAt} >= ${today}`);
+
+  const categoryResults = await db
+    .select({
+      category: feedbacksTable.category,
+      count: count(),
+    })
+    .from(feedbacksTable)
+    .groupBy(feedbacksTable.category);
+
+  res.json({
+    total: totalResult?.count || 0,
+    todayCount: todayResult?.count || 0,
+    byCategory: categoryResults.map((r) => ({
+      category: r.category,
+      count: r.count,
+    })),
+  });
+});
+
+router.get("/v1/feedbacks", adminAuth, async (req, res): Promise<void> => {
   const queryParsed = ListFeedbacksQueryParams.safeParse(req.query);
   if (!queryParsed.success) {
     res.status(400).json({
@@ -89,7 +119,7 @@ router.get("/v1/feedbacks", async (req, res): Promise<void> => {
     return;
   }
 
-  const { page = 1, limit = 20, category, search, sortBy = "createdAt", sortOrder = "desc" } = queryParsed.data;
+  const { page = 1, limit = 20, category, search, dateFrom, dateTo, sortBy = "createdAt", sortOrder = "desc" } = queryParsed.data;
   const offset = (page - 1) * limit;
 
   const conditions = [];
@@ -104,9 +134,17 @@ router.get("/v1/feedbacks", async (req, res): Promise<void> => {
       )!
     );
   }
+  if (dateFrom) {
+    conditions.push(gte(feedbacksTable.createdAt, new Date(dateFrom)));
+  }
+  if (dateTo) {
+    const endOfDay = new Date(dateTo);
+    endOfDay.setHours(23, 59, 59, 999);
+    conditions.push(lte(feedbacksTable.createdAt, endOfDay));
+  }
 
   const whereClause = conditions.length > 0
-    ? conditions.length === 1 ? conditions[0] : sql`${conditions[0]} AND ${conditions[1]}`
+    ? and(...conditions)
     : undefined;
 
   const sortColumn = sortBy === "category" ? feedbacksTable.category : feedbacksTable.createdAt;
@@ -142,37 +180,6 @@ router.get("/v1/feedbacks", async (req, res): Promise<void> => {
     page,
     limit,
     totalPages: Math.ceil(total / limit),
-  });
-});
-
-router.get("/v1/feedbacks/stats", async (_req, res): Promise<void> => {
-  const [totalResult] = await db
-    .select({ count: count() })
-    .from(feedbacksTable);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const [todayResult] = await db
-    .select({ count: count() })
-    .from(feedbacksTable)
-    .where(sql`${feedbacksTable.createdAt} >= ${today}`);
-
-  const categoryResults = await db
-    .select({
-      category: feedbacksTable.category,
-      count: count(),
-    })
-    .from(feedbacksTable)
-    .groupBy(feedbacksTable.category);
-
-  res.json({
-    total: totalResult?.count || 0,
-    todayCount: todayResult?.count || 0,
-    byCategory: categoryResults.map((r) => ({
-      category: r.category,
-      count: r.count,
-    })),
   });
 });
 

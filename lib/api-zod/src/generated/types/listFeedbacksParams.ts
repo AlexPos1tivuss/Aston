@@ -12,6 +12,8 @@ export type ListFeedbacksParams = {
   limit?: number;
   category?: string;
   search?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
   sortBy?: string;
   sortOrder?: ListFeedbacksSortOrder;
 };

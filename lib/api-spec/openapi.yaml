@@ -90,6 +90,16 @@ paths:
           in: query
           schema:
             type: string
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
         - name: sortBy
           in: query
           schema:
@@ -170,6 +180,16 @@ paths:
           in: query
           schema:
             type: string
+        - name: dateFrom
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          schema:
+            type: string
+            format: date
         - name: sortBy
           in: query
           schema:

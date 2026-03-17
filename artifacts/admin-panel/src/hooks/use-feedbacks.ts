@@ -12,6 +12,8 @@ export function useFeedbacksManager() {
   const [category, setCategory] = useState<string>("");
   const [searchInput, setSearchInput] = useState<string>("");
   const [search] = useDebounce(searchInput, 500);
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<ListFeedbacksSortOrder>("desc");
 
@@ -20,6 +22,8 @@ export function useFeedbacksManager() {
     limit,
     category: category || undefined,
     search: search || undefined,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
     sortBy,
     sortOrder,
   };
@@ -39,6 +43,10 @@ export function useFeedbacksManager() {
     setCategory,
     searchInput,
     setSearchInput,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
     sortBy,
     setSortBy,
     sortOrder,

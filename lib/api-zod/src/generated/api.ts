@@ -54,6 +54,8 @@ export const ListFeedbacksQueryParams = zod.object({
   limit: zod.coerce.number().default(listFeedbacksQueryLimitDefault),
   category: zod.coerce.string().optional(),
   search: zod.coerce.string().optional(),
+  dateFrom: zod.date().optional(),
+  dateTo: zod.date().optional(),
   sortBy: zod.coerce.string().default(listFeedbacksQuerySortByDefault),
   sortOrder: zod
     .enum(["asc", "desc"])
@@ -104,6 +106,8 @@ export const ListCallbacksQueryParams = zod.object({
   limit: zod.coerce.number().default(listCallbacksQueryLimitDefault),
   status: zod.coerce.string().optional(),
   search: zod.coerce.string().optional(),
+  dateFrom: zod.date().optional(),
+  dateTo: zod.date().optional(),
   sortBy: zod.coerce.string().default(listCallbacksQuerySortByDefault),
   sortOrder: zod
     .enum(["asc", "desc"])

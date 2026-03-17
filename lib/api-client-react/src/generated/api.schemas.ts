@@ -114,6 +114,8 @@ export type ListFeedbacksParams = {
   limit?: number;
   category?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
   sortBy?: string;
   sortOrder?: ListFeedbacksSortOrder;
 };
@@ -131,6 +133,8 @@ export type ListCallbacksParams = {
   limit?: number;
   status?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
   sortBy?: string;
   sortOrder?: ListCallbacksSortOrder;
 };

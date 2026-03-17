@@ -12,6 +12,8 @@ export type ListCallbacksParams = {
   limit?: number;
   status?: string;
   search?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
   sortBy?: string;
   sortOrder?: ListCallbacksSortOrder;
 };
