@@ -147,7 +147,12 @@ router.get("/v1/callbacks/stats", adminAuth, async (_req, res): Promise<void> =>
 });
 
 router.get("/v1/callbacks", adminAuth, async (req, res): Promise<void> => {
-  const queryParsed = ListCallbacksQueryParams.safeParse(req.query);
+  const queryWithDates = {
+    ...req.query,
+    dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom as string) : undefined,
+    dateTo: req.query.dateTo ? new Date(req.query.dateTo as string) : undefined,
+  };
+  const queryParsed = ListCallbacksQueryParams.safeParse(queryWithDates);
   if (!queryParsed.success) {
     res.status(400).json({
       error: "validation_error",
@@ -172,10 +177,10 @@ router.get("/v1/callbacks", adminAuth, async (req, res): Promise<void> => {
     );
   }
   if (dateFrom) {
-    conditions.push(gte(callbacksTable.createdAt, new Date(dateFrom)));
+    conditions.push(gte(callbacksTable.createdAt, dateFrom));
   }
   if (dateTo) {
-    const endOfDay = new Date(dateTo);
+    const endOfDay = new Date(dateTo.getTime());
     endOfDay.setHours(23, 59, 59, 999);
     conditions.push(lte(callbacksTable.createdAt, endOfDay));
   }

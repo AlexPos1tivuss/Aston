@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   useListCallbacks,
   useGetCallbackStats,
@@ -37,7 +37,7 @@ export function useCallbacksManager() {
   };
 
   const query = useListCallbacks(queryParams, {
-    query: { keepPreviousData: true },
+    query: { placeholderData: keepPreviousData },
   });
 
   const statsQuery = useGetCallbackStats();

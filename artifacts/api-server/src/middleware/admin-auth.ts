@@ -9,12 +9,6 @@ export function adminAuth(req: Request, res: Response, next: NextFunction): void
     return;
   }
 
-  const referer = req.headers.referer || req.headers.origin || "";
-  if (referer.includes("/admin")) {
-    next();
-    return;
-  }
-
   res.status(403).json({
     error: "forbidden",
     message: "Доступ запрещен",
