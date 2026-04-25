@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useCallbacksManager } from "@/hooks/use-callbacks";
 import { StatCard } from "@/components/ui/stat-card";
 import { Layout } from "@/components/layout";
-import { PhoneCall, Search, Calendar, Clock, Loader2, ChevronLeft, ChevronRight, FileX, CheckCircle2, Clock3, XCircle, MoreVertical } from "lucide-react";
+import { PhoneCall, Search, Calendar, Clock, Loader2, ChevronLeft, ChevronRight, FileX, CheckCircle2, Clock3, XCircle, Headphones } from "lucide-react";
 import { formatDate, cn } from "@/lib/utils";
 import { UpdateCallbackStatusRequestStatus } from "@workspace/api-client-react";
 
@@ -32,12 +32,30 @@ export default function CallbacksPage() {
 
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  const handleStatusChange = async (id: number, newStatus: string) => {
+  const handleStatusChange = async (id: number, newStatus: string, currentOperator: number | null | undefined) => {
     setUpdatingId(id);
     try {
       await updateStatusMutation.mutateAsync({
         id,
-        data: { status: newStatus as UpdateCallbackStatusRequestStatus }
+        data: {
+          status: newStatus as UpdateCallbackStatusRequestStatus,
+          operatorNumber: currentOperator ?? null,
+        }
+      });
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleOperatorChange = async (id: number, currentStatus: string, newOperator: number | null) => {
+    setUpdatingId(id);
+    try {
+      await updateStatusMutation.mutateAsync({
+        id,
+        data: {
+          status: currentStatus as UpdateCallbackStatusRequestStatus,
+          operatorNumber: newOperator,
+        }
       });
     } finally {
       setUpdatingId(null);
@@ -151,13 +169,14 @@ export default function CallbacksPage() {
                   <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Телефон</th>
                   <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Желаемое время</th>
                   <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Создано</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Оператор №</th>
                   <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Статус</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {query.isLoading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <Loader2 className="w-8 h-8 animate-spin mb-4 text-primary" />
                         <p>Загрузка заявок...</p>
@@ -166,7 +185,7 @@ export default function CallbacksPage() {
                   </tr>
                 ) : query.data?.data.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-16 text-center">
+                    <td colSpan={7} className="px-6 py-16 text-center">
                       <div className="flex flex-col items-center justify-center text-muted-foreground">
                         <FileX className="w-12 h-12 mb-4 text-muted-foreground/50" />
                         <p className="text-lg font-medium text-foreground">Заявки не найдены</p>
@@ -198,10 +217,35 @@ export default function CallbacksPage() {
                           {formatDate(item.createdAt)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                              <Headphones className="w-4 h-4" />
+                            </span>
+                            <input
+                              type="number"
+                              min={1}
+                              max={999}
+                              value={item.operatorNumber ?? ""}
+                              placeholder="—"
+                              disabled={isUpdating}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const num = val === "" ? null : parseInt(val, 10);
+                                if (num !== null && (isNaN(num) || num < 1 || num > 999)) return;
+                                handleOperatorChange(item.id, item.status, num);
+                              }}
+                              className={cn(
+                                "w-16 px-2 py-1 text-sm font-semibold text-center rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all",
+                                isUpdating && "opacity-50 cursor-wait"
+                              )}
+                            />
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="relative inline-block">
                             <select
                               value={item.status}
-                              onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                              onChange={(e) => handleStatusChange(item.id, e.target.value, item.operatorNumber)}
                               disabled={isUpdating}
                               className={cn(
                                 "appearance-none cursor-pointer border py-1.5 pl-3 pr-8 rounded-full text-xs font-semibold outline-none transition-all w-36",

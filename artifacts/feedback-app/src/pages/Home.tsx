@@ -2,27 +2,27 @@ import React, { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CallbackModal } from "@/components/modals/CallbackModal";
-import { PhoneCall, Code2, Database, Cloud, Shield, Layers, Cpu, Braces, ArrowUpRight, Users, Zap, Award } from "lucide-react";
+import { PhoneCall, CreditCard, Wallet, PiggyBank, ShieldCheck, Landmark, Smartphone, Building2, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 const FEATURES = [
-  { icon: Code2, title: "Разработка ПО", desc: "Полный цикл создания программных продуктов — от проектирования архитектуры до поддержки в продакшене." },
-  { icon: Database, title: "Работа с данными", desc: "Проектирование баз данных, ETL-процессы, аналитические платформы и хранилища данных." },
-  { icon: Cloud, title: "Облачные решения", desc: "Миграция в облако, DevOps-практики, CI/CD пайплайны и инфраструктура как код." },
-  { icon: Shield, title: "Безопасность", desc: "Аудит безопасности, защита приложений, соответствие стандартам и регуляторным требованиям." },
+  { icon: CreditCard, title: "Карты", desc: "Дебетовые и кредитные карты с кэшбэком до 10% и бесплатным обслуживанием." },
+  { icon: PiggyBank, title: "Вклады", desc: "Накопительные счета и вклады со ставкой до 16% годовых и ежемесячной выплатой процентов." },
+  { icon: Wallet, title: "Кредиты", desc: "Потребительские, ипотечные и автокредиты с одобрением онлайн за 5 минут." },
+  { icon: ShieldCheck, title: "Страхование", desc: "Защита здоровья, имущества и путешествий с поддержкой 24/7." },
 ];
 
 const SERVICES = [
-  { icon: Layers, title: "Веб-разработка", desc: "Высоконагруженные веб-приложения, SPA/SSR, микросервисная архитектура" },
-  { icon: Cpu, title: "Мобильная разработка", desc: "Нативные и кроссплатформенные приложения для iOS и Android" },
-  { icon: Braces, title: "Интеграция систем", desc: "API-разработка, интеграция с внешними сервисами и legacy-системами" },
+  { icon: Landmark, title: "Для бизнеса", desc: "РКО, эквайринг, зарплатные проекты и кредитование для предпринимателей" },
+  { icon: Smartphone, title: "Мобильный банк", desc: "Все операции в одном приложении: переводы, оплата, инвестиции" },
+  { icon: Building2, title: "Ипотека", desc: "Семейная, льготная и стандартная ипотека от 5,9% годовых" },
 ];
 
 const STATS = [
-  { value: "200+", label: "Реализованных проектов" },
-  { value: "50+", label: "Специалистов в команде" },
-  { value: "10+", label: "Лет на рынке" },
-  { value: "99.9%", label: "Uptime наших решений" },
+  { value: "30+", label: "Лет на рынке" },
+  { value: "5 млн", label: "Активных клиентов" },
+  { value: "1500+", label: "Отделений по стране" },
+  { value: "24/7", label: "Поддержка клиентов" },
 ];
 
 export function Home() {
@@ -46,16 +46,16 @@ export function Home() {
               >
                 <div className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-sm font-medium text-gray-600 mb-6">
                   <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
-                  IT-аутсорсинг и разработка
+                  Банк нового поколения
                 </div>
                 <h1 className="text-5xl font-extrabold tracking-tight text-black font-display sm:text-6xl lg:text-7xl mb-6 leading-[1.1]">
-                  Разрабатываем{" "}
-                  <span className="text-gradient">цифровые</span>{" "}
-                  продукты для бизнеса
+                  Ваш{" "}
+                  <span className="text-gradient">надежный</span>{" "}
+                  финансовый партнёр
                 </h1>
                 <p className="text-lg text-gray-500 sm:text-xl mb-10 max-w-2xl leading-relaxed">
-                  АСТОН — IT-компания полного цикла. Создаем надежное программное обеспечение, 
-                  выстраиваем инфраструктуру и помогаем бизнесу расти с помощью технологий.
+                  АСТОН Банк — современные банковские услуги для частных лиц и бизнеса. 
+                  Карты, вклады, кредиты и инвестиции в одном приложении.
                 </p>
                 
                 <button
@@ -63,7 +63,7 @@ export function Home() {
                   className="rounded-xl bg-primary px-8 py-4 text-base font-bold text-black shadow-lg shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/30 flex items-center"
                 >
                   <PhoneCall className="mr-2 h-5 w-5" />
-                  Обсудить проект
+                  Заказать обратный звонок
                 </button>
               </motion.div>
             </div>
@@ -98,9 +98,9 @@ export function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Компетенции</p>
+                <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Продукты</p>
                 <h2 className="text-3xl font-bold tracking-tight text-black font-display sm:text-4xl">
-                  Наши направления
+                  Всё для вашей жизни
                 </h2>
               </motion.div>
             </div>
@@ -126,7 +126,7 @@ export function Home() {
           </div>
         </section>
 
-        <section id="technologies" className="relative py-24 bg-white">
+        <section id="business" className="relative py-24 bg-white">
           <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <motion.div
@@ -136,7 +136,7 @@ export function Home() {
               >
                 <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">Услуги</p>
                 <h2 className="text-3xl font-bold tracking-tight text-black font-display sm:text-4xl">
-                  Что мы делаем
+                  Решения для каждого
                 </h2>
               </motion.div>
             </div>
@@ -175,11 +175,11 @@ export function Home() {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl font-bold text-white font-display sm:text-4xl mb-4">
-                Готовы обсудить проект?
+                Нужна консультация?
               </h2>
               <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-                Наша команда разработчиков поможет воплотить вашу идею в работающий продукт. 
-                Свяжитесь с нами для бесплатной консультации.
+                Наши специалисты подберут оптимальный банковский продукт под ваши цели. 
+                Оставьте заявку — перезвоним в удобное время.
               </p>
               <button
                 onClick={() => setIsCallbackOpen(true)}

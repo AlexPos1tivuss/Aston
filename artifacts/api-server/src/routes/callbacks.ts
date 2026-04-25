@@ -14,6 +14,9 @@ const router: IRouter = Router();
 const rateLimitMap = new Map<string, number>();
 const RATE_LIMIT_MS = 3 * 60 * 1000;
 
+const NUM_OPERATORS = parseInt(process.env.NUM_OPERATORS || "5", 10);
+const VALID_STATUSES = ["new", "in_progress", "completed", "rejected"];
+
 const VALID_TIME_SLOTS = [
   "09:00 - 10:00",
   "10:00 - 11:00",
@@ -113,6 +116,12 @@ router.post("/v1/callbacks", async (req, res): Promise<void> => {
     return;
   }
 
+  const [{ count: existingCount }] = await db
+    .select({ count: count() })
+    .from(callbacksTable);
+
+  const operatorNumber = (existingCount % Math.max(NUM_OPERATORS, 1)) + 1;
+
   const [callback] = await db
     .insert(callbacksTable)
     .values({
@@ -120,6 +129,7 @@ router.post("/v1/callbacks", async (req, res): Promise<void> => {
       phoneNumber: data.phoneNumber,
       callDate: data.callDate,
       callTime: data.callTime,
+      operatorNumber,
     })
     .returning();
 
@@ -132,6 +142,7 @@ router.post("/v1/callbacks", async (req, res): Promise<void> => {
     callDate: callback.callDate,
     callTime: callback.callTime,
     status: callback.status,
+    operatorNumber: callback.operatorNumber,
     createdAt: callback.createdAt.toISOString(),
   });
 });
@@ -235,6 +246,7 @@ router.get("/v1/callbacks", adminAuth, async (req, res): Promise<void> => {
     callDate: c.callDate,
     callTime: c.callTime,
     status: c.status,
+    operatorNumber: c.operatorNumber,
     createdAt: c.createdAt.toISOString(),
   }));
 
@@ -267,9 +279,34 @@ router.patch("/v1/callbacks/:id", adminAuth, async (req, res): Promise<void> => 
     return;
   }
 
+  if (!VALID_STATUSES.includes(bodyParsed.data.status)) {
+    res.status(400).json({
+      error: "validation_error",
+      message: "Некорректный статус",
+    });
+    return;
+  }
+
+  const updateData: { status: string; operatorNumber?: number | null } = {
+    status: bodyParsed.data.status,
+  };
+  if (bodyParsed.data.operatorNumber !== undefined) {
+    if (
+      bodyParsed.data.operatorNumber !== null &&
+      (bodyParsed.data.operatorNumber < 1 || bodyParsed.data.operatorNumber > 999)
+    ) {
+      res.status(400).json({
+        error: "validation_error",
+        message: "Некорректный номер оператора",
+      });
+      return;
+    }
+    updateData.operatorNumber = bodyParsed.data.operatorNumber;
+  }
+
   const [callback] = await db
     .update(callbacksTable)
-    .set({ status: bodyParsed.data.status })
+    .set(updateData)
     .where(eq(callbacksTable.id, paramsParsed.data.id))
     .returning();
 
@@ -288,6 +325,7 @@ router.patch("/v1/callbacks/:id", adminAuth, async (req, res): Promise<void> => 
     callDate: callback.callDate,
     callTime: callback.callTime,
     status: callback.status,
+    operatorNumber: callback.operatorNumber,
     createdAt: callback.createdAt instanceof Date ? callback.createdAt.toISOString() : callback.createdAt,
   });
 });

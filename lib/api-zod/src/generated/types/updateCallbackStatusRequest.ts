@@ -9,4 +9,5 @@ import type { UpdateCallbackStatusRequestStatus } from "./updateCallbackStatusRe
 
 export interface UpdateCallbackStatusRequest {
   status: UpdateCallbackStatusRequestStatus;
+  operatorNumber?: number | null;
 }

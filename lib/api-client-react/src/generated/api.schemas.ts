@@ -62,6 +62,7 @@ export interface CallbackResponse {
   callDate: string;
   callTime: string;
   status: string;
+  operatorNumber?: number | null;
   createdAt: string;
 }
 
@@ -85,6 +86,7 @@ export const UpdateCallbackStatusRequestStatus = {
 
 export interface UpdateCallbackStatusRequest {
   status: UpdateCallbackStatusRequestStatus;
+  operatorNumber?: number | null;
 }
 
 export type FeedbackStatsResponseByCategoryItem = {

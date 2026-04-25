@@ -391,6 +391,9 @@ components:
           type: string
         status:
           type: string
+        operatorNumber:
+          type: integer
+          nullable: true
         createdAt:
           type: string
           format: date-time
@@ -435,6 +438,9 @@ components:
             - in_progress
             - completed
             - rejected
+        operatorNumber:
+          type: integer
+          nullable: true
       required:
         - status
 

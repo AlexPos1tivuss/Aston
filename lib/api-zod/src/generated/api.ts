@@ -123,6 +123,7 @@ export const ListCallbacksResponse = zod.object({
       callDate: zod.string(),
       callTime: zod.string(),
       status: zod.string(),
+      operatorNumber: zod.number().nullish(),
       createdAt: zod.date(),
     }),
   ),
@@ -142,6 +143,7 @@ export const UpdateCallbackStatusParams = zod.object({
 
 export const UpdateCallbackStatusBody = zod.object({
   status: zod.enum(["new", "in_progress", "completed", "rejected"]),
+  operatorNumber: zod.number().nullish(),
 });
 
 export const UpdateCallbackStatusResponse = zod.object({
@@ -151,6 +153,7 @@ export const UpdateCallbackStatusResponse = zod.object({
   callDate: zod.string(),
   callTime: zod.string(),
   status: zod.string(),
+  operatorNumber: zod.number().nullish(),
   createdAt: zod.date(),
 });
 

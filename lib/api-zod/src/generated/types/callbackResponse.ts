@@ -13,5 +13,6 @@ export interface CallbackResponse {
   callDate: string;
   callTime: string;
   status: string;
+  operatorNumber?: number | null;
   createdAt: Date;
 }

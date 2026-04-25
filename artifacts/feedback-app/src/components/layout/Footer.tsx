@@ -16,13 +16,13 @@ export function Footer() {
                   <span className="text-lg font-bold text-white font-display">А</span>
                 </div>
                 <span className="text-xl font-black tracking-tight text-black font-display">
-                  АСТОН
+                  АСТОН Банк
                 </span>
               </div>
               <p className="max-w-sm text-sm text-gray-400 leading-relaxed">
-                IT-компания полного цикла. Разработка программного обеспечения,
-                облачная инфраструктура и цифровая трансформация бизнеса.
-                <br />© 2012—2025 ASTON (astondevs.ru)
+                Универсальный коммерческий банк с лицензией ЦБ РФ.
+                Современные финансовые сервисы для частных и корпоративных клиентов.
+                <br />© 1995—2026 АО «АСТОН Банк»
               </p>
               
               <div className="mt-8">
@@ -37,21 +37,21 @@ export function Footer() {
             </div>
             
             <div>
-              <h4 className="mb-4 font-semibold text-black font-display">Услуги</h4>
+              <h4 className="mb-4 font-semibold text-black font-display">Продукты</h4>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li>Веб-разработка</li>
-                <li>Мобильная разработка</li>
-                <li>Облачные решения</li>
-                <li>Интеграция систем</li>
+                <li>Дебетовые карты</li>
+                <li>Кредиты и ипотека</li>
+                <li>Вклады и накопления</li>
+                <li>Инвестиции</li>
               </ul>
             </div>
             
             <div>
-              <h4 className="mb-4 font-semibold text-black font-display">Компания</h4>
+              <h4 className="mb-4 font-semibold text-black font-display">Банк</h4>
               <ul className="space-y-3 text-sm text-gray-400">
-                <li>О нас</li>
-                <li>Карьера</li>
-                <li>Блог</li>
+                <li>О банке</li>
+                <li>Отделения и банкоматы</li>
+                <li>Тарифы</li>
                 <li>Контакты</li>
               </ul>
             </div>

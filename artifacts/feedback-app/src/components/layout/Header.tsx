@@ -3,8 +3,8 @@ import { Link } from "wouter";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { href: "#services", label: "Услуги" },
-  { href: "#technologies", label: "Технологии" },
+  { href: "#services", label: "Продукты" },
+  { href: "#business", label: "Услуги" },
   { href: "#support", label: "Контакты" },
 ];
 
@@ -19,7 +19,7 @@ export function Header() {
             <span className="text-xl font-extrabold text-white font-display">А</span>
           </div>
           <span className="text-2xl font-black tracking-tight text-black font-display">
-            АСТОН
+            АСТОН Банк
           </span>
         </Link>
 
