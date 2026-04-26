@@ -130,8 +130,11 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
 
   const getErrorMessage = () => {
     if (!createCallback.isError) return null;
-    const err = createCallback.error;
-    if (err && "status" in err && err.status === 429) return "Превышена частота запросов. Повторите попытку позже.";
+    const err = createCallback.error as { status?: number; data?: { message?: string } } | null;
+    if (err?.status === 429) return "Превышена частота запросов. Повторите попытку позже.";
+    if (err?.status && err.status >= 400 && err.status < 500 && err.data?.message) {
+      return err.data.message;
+    }
     return "Ошибка 500: Сервис временно недоступен";
   };
 

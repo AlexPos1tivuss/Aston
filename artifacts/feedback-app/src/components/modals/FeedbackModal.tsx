@@ -87,8 +87,11 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   const getErrorMessage = () => {
     if (!createFeedback.isError) return null;
-    const err = createFeedback.error;
-    if (err && "status" in err && err.status === 429) return "Превышена частота запросов. Повторите попытку позже.";
+    const err = createFeedback.error as { status?: number; data?: { message?: string } } | null;
+    if (err?.status === 429) return "Превышена частота запросов. Повторите попытку позже.";
+    if (err?.status && err.status >= 400 && err.status < 500 && err.data?.message) {
+      return err.data.message;
+    }
     return "Сервис временно недоступен. Повторите попытку позже";
   };
 
